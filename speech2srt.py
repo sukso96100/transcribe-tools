@@ -15,7 +15,7 @@
 # limitations under the License.
 import srt
 import time
-from google.cloud import speech
+from google.cloud import speech, storage
 
 
 def long_running_recognize(args):
@@ -101,20 +101,29 @@ def break_sentences(args, subs, alternative):
 def write_srt(args, subs):
     srt_file = args.out_file + ".srt"
     print("Writing {} subtitles to: {}".format(args.language_code, srt_file))
+    content = srt.compose(subs)
     f = open(srt_file, 'w')
     f.writelines(srt.compose(subs))
     f.close()
-    return
+    return content
 
 
 def write_txt(args, subs):
     txt_file = args.out_file + ".txt"
     print("Writing text to: {}".format(txt_file))
+    content = ""
     f = open(txt_file, 'w')
     for s in subs:
         f.write(s.content.strip() + "\n")
+        content += s.content.strip() + "\n"
     f.close()
-    return
+    return content
+
+def upload_to_bucket(content, bucket_name, dest_filename):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(dest_filename)
+    blob.upload_from_string(content)
 
 
 def main():
@@ -142,6 +151,11 @@ def main():
         default="en",
     )
     parser.add_argument(
+        "--out-storage_uri",
+        type=str,
+        default="gs://cloud-samples-data/speech/brooklyn_bridge.raw",
+    )
+    parser.add_argument(
         "--max_chars",
         type=int,
         default=40,
@@ -149,8 +163,11 @@ def main():
     args = parser.parse_args()
 
     subs = long_running_recognize(args)
-    write_srt(args, subs)
-    write_txt(args, subs)
+    srt_str = write_srt(args, subs)
+    txt_str = write_txt(args, subs)
+    input_filename = args.storage_uri.split("/")[-1]
+    upload_to_bucket(srt_str, args.out_storage_uri, "{}/{}.{}".format(input_filename, args.language_code, ".srt"))
+    upload_to_bucket(txt_str, args.out_storage_uri, "{}/{}.{}".format(input_filename, args.language_code, ".txt"))
 
 
 if __name__ == "__main__":
