@@ -32,14 +32,14 @@ def get_supported_languages(project_id):
 
 
 def batch_translate_text(
-    input_txt_uri, output_uri, project_id, location, source_lang, target_lang
+    input_uri, output_uri, project_id, location, source_lang, target_lang
 ):
     # call batch translate against orig.txt
 
     client = translate.TranslationServiceClient()
 
     target_language_codes = target_lang.split(",")
-    gcs_source = {"input_uri": input_txt_uri}
+    gcs_source = {"input_uri": input_uri}
     mime_type = "text/plain"
     input_configs_element = {"gcs_source": gcs_source, "mime_type": mime_type}
     input_configs = [input_configs_element]
@@ -90,12 +90,7 @@ def main():
         default="ko,fi",
     )
     parser.add_argument(
-        "--input_txt_uri",
-        type=str,
-        required=True,
-    )
-    parser.add_argument(
-        "--input_srt_uri",
+        "--input_uri",
         type=str,
         required=True,
     )
@@ -107,7 +102,7 @@ def main():
     args = parser.parse_args()
 
     get_supported_languages(args.project_id)
-    batch_translate_text(args.input_txt_uri, args.output_uri, args.project_id,
+    batch_translate_text(args.input_uri, args.output_uri, args.project_id,
                          location, args.source_lang, args.target_lang)
 
 
