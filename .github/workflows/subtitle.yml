@@ -43,13 +43,19 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         export_default_credentials: true
+        components: gsutil
     - name: Generate subtitle from audio file
       run: |
         export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
         python speech2srt.py --storage_uri gs://${{env.BUCKET_IN}}/${{ matrix.input }} \
           --language_code ${{ matrix.from }} --out_file ${{ matrix.from }} --out_storage ${{env.BUCKET_OUT}}
-    - name: Translate subtitle
+    - name: Translate subtitle text
       run: |
         python3 translate_txt.py --project_id ${{ secrets.GCP_PROJECT_ID }} --source_lang ${{ matrix.from }} --target_lang ${{ matrix.to }} \
           --input_uri gs://${{env.BUCKET_OUT}}/${{ matrix.input }}/${{ matrix.from }}.txt --output_uri gs://${{env.BUCKET_OUT}}/${{ matrix.input }}/out/
+    - name: Convert translated text into subtitles
+      run: |
+        gsutil cp gs://${{env.BUCKET_OUT}}/${{ matrix.input }}/out/index.csv .
+        gsutil cp gs://${{env.BUCKET_OUT}}/${{ matrix.input }}/${{ matrix.from }}.srt .
+        python3 txt2srt.py --srt ${{ matrix.from }}.srt --index index.csv
       
