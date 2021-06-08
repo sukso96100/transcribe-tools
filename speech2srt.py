@@ -143,7 +143,7 @@ def main():
     parser.add_argument(
         "--sample_rate_hertz",
         type=int,
-        default=16000,
+        default=44100,
     )
     parser.add_argument(
         "--out_file",
@@ -151,7 +151,7 @@ def main():
         default="en",
     )
     parser.add_argument(
-        "--out-storage_uri",
+        "--out_storage_uri",
         type=str,
         default="gs://cloud-samples-data/speech/brooklyn_bridge.raw",
     )
@@ -166,8 +166,8 @@ def main():
     srt_str = write_srt(args, subs)
     txt_str = write_txt(args, subs)
     input_filename = args.storage_uri.split("/")[-1]
-    upload_to_bucket(srt_str, args.out_storage_uri, "{}/{}.{}".format(input_filename, args.language_code, ".srt"))
-    upload_to_bucket(txt_str, args.out_storage_uri, "{}/{}.{}".format(input_filename, args.language_code, ".txt"))
+    upload_to_bucket(srt_str, args.out_storage_uri, "{}/{}.{}".format(input_filename, args.language_code, "srt"))
+    upload_to_bucket(txt_str, args.out_storage_uri, "{}/{}.{}".format(input_filename, args.language_code, "txt"))
 
 
 if __name__ == "__main__":
