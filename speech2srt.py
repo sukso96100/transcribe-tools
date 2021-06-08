@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from google.cloud.storage import blob
 import srt
 import time
 from google.cloud import speech, storage
@@ -119,10 +120,8 @@ def write_txt(args, subs):
     # f.close()
     return content
 
-def upload_to_bucket(content, bucket_name, dest_filename):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(dest_filename)
+def upload_to_bucket(content, bucket_obj, dest_filename):
+    blob = bucket_obj.blob(dest_filename)
     blob.upload_from_string(content)
 
 
@@ -162,12 +161,20 @@ def main():
     )
     args = parser.parse_args()
 
-    subs = long_running_recognize(args)
-    srt_str = write_srt(args, subs)
-    txt_str = write_txt(args, subs)
     input_filename = args.storage_uri.split("/")[-1]
-    upload_to_bucket(srt_str, args.out_storage_uri, "{}/{}.{}".format(input_filename, args.language_code, "srt"))
-    upload_to_bucket(txt_str, args.out_storage_uri, "{}/{}.{}".format(input_filename, args.language_code, "txt"))
+    out_srt = "{}/{}.{}".format(input_filename, args.language_code, "srt")
+    out_txt = "{}/{}.{}".format(input_filename, args.language_code, "txt")
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(args.out_storage_uri)
+    if((not bucket.blob(out_srt).exists()) and (not bucket.blob(out_txt).exists())):
+
+        subs = long_running_recognize(args)
+        srt_str = write_srt(args, subs)
+        txt_str = write_txt(args, subs)
+        
+        upload_to_bucket(srt_str, bucket, out_srt)
+        upload_to_bucket(txt_str, bucket, out_txt)
 
 
 if __name__ == "__main__":
