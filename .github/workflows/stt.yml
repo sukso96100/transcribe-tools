@@ -15,13 +15,16 @@ jobs:
     - id: set-matrix
       run: |
         JSON=$(cat ./videos.json)
-        echo "::set-output name=matrix::${JSON//'%'/'%25'}"
+        JSON="${JSON//'%'/%25}"
+        JSON="${JSON//$'\n'/%0A}"
+        JSON="${JSON//$'\r'/%0D}"
+        echo "::set-output name=matrix::${JSON}"
 
   job2:
     needs: job1
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.job1.outputs.matrix)}}
+      matrix: ${{fromJSON(needs.job1.outputs.matrix)}}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.9
