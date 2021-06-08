@@ -51,5 +51,5 @@ jobs:
     - name: Translate subtitle
       run: |
         python3 translate_txt.py --project_id ${{ secrets.GCP_PROJECT_ID }} --source_lang ${{ matrix.from }} --target_lang ${{ matrix.to }} \
-          --input_uri gs://${{env.BUCKET_OUT}}/${{ matrix.from }}.txt --output_uri gs://${{env.BUCKET_OUT}}/out/
+          --input_uri gs://${{env.BUCKET_OUT}}/${{ matrix.input }}/${{ matrix.from }}.txt --output_uri gs://${{env.BUCKET_OUT}}/${{ matrix.input }}/out/
       
