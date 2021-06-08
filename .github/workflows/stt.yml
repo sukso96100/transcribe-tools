@@ -37,10 +37,15 @@ jobs:
         pip install flake8 pytest wheel
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - run: echo ${{ matrix.input }}
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        export_default_credentials: true
     - name: Generate subtitle from audio file
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       run: |
+        export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
         python speech2srt.py --storage_uri gs://${{env.BUCKET_IN}}/${{ matrix.input }} \
           --language_code ${{ matrix.from }} --out_file ${{ matrix.from }} --out_storage ${{env.BUCKET_OUT}}
 
