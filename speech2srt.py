@@ -31,7 +31,7 @@ def long_running_recognize(args):
     client = speech.SpeechClient()
 
     # Encoding of audio data sent.
-    encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16
+    encoding = speech.RecognitionConfig.AudioEncoding.ENCODING_UNSPECIFIED
     config = {
         "enable_word_time_offsets": True,
         "enable_automatic_punctuation": True,
