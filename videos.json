@@ -4,6 +4,11 @@
             "input": "ubuntu2004.flac",
             "from": "ko",
             "to": "en"
+        },
+        {
+            "input": "l10n.flac",
+            "from": "ko",
+            "to": "en"
         }
     ]
 }

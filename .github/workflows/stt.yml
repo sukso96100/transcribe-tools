@@ -37,4 +37,11 @@ jobs:
         pip install flake8 pytest wheel
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - run: echo ${{ matrix.input }}
+    - name: Generate subtitle from audio file
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      run: |
+        python speech2srt.py --storage_uri gs://${{env.BUCKET_IN}}/${{ matrix.input }} \
+          --language_code ${{ matrix.in }} --out_file ${{ matrix.in }} --out_storage ${{env.BUCKET_OUT}}
+
       
