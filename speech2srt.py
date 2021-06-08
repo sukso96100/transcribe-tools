@@ -175,6 +175,8 @@ def main():
         
         upload_to_bucket(srt_str, bucket, out_srt)
         upload_to_bucket(txt_str, bucket, out_txt)
+    else:
+        print("Skipped batch speech to text job as output path is not empty")
 
 
 if __name__ == "__main__":

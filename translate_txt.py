@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from google.cloud import translate
+from google.api_core.exceptions import InvalidArgument
 
 
 def get_supported_languages(project_id):
@@ -102,8 +103,11 @@ def main():
     args = parser.parse_args()
 
     get_supported_languages(args.project_id)
-    batch_translate_text(args.input_uri, args.output_uri, args.project_id,
-                         location, args.source_lang, args.target_lang)
+    try:
+        batch_translate_text(args.input_uri, args.output_uri, args.project_id,
+                            location, args.source_lang, args.target_lang)
+    except InvalidArgument as e:
+        print("Skipped batch translate job as output path is not empty")
 
 
 if __name__ == "__main__":
