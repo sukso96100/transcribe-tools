@@ -102,9 +102,9 @@ def write_srt(args, subs):
     srt_file = args.out_file + ".srt"
     print("Writing {} subtitles to: {}".format(args.language_code, srt_file))
     content = srt.compose(subs)
-    f = open(srt_file, 'w')
-    f.writelines(srt.compose(subs))
-    f.close()
+    # f = open(srt_file, 'w')
+    # f.writelines(srt.compose(subs))
+    # f.close()
     return content
 
 
@@ -112,11 +112,11 @@ def write_txt(args, subs):
     txt_file = args.out_file + ".txt"
     print("Writing text to: {}".format(txt_file))
     content = ""
-    f = open(txt_file, 'w')
+    # f = open(txt_file, 'w')
     for s in subs:
-        f.write(s.content.strip() + "\n")
+        # f.write(s.content.strip() + "\n")
         content += s.content.strip() + "\n"
-    f.close()
+    # f.close()
     return content
 
 def upload_to_bucket(content, bucket_name, dest_filename):
