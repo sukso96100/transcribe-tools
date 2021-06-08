@@ -20,7 +20,8 @@ def get_supported_languages(project_id):
     """Getting a list of supported language codes"""
 
     client = translate.TranslationServiceClient()
-    parent = client.location_path(project_id, "global")
+    # parent = client.location_path(project_id, "global")
+    parent = f"projects/{project_id}/locations/global"
     response = client.get_supported_languages(parent=parent)
 
     # List language codes of supported languages
@@ -31,27 +32,34 @@ def get_supported_languages(project_id):
 
 
 def batch_translate_text(
-    input_uri, output_uri, project_id, location, source_lang, target_lang
+    input_txt_uri, output_uri, project_id, location, source_lang, target_lang
 ):
     # call batch translate against orig.txt
 
     client = translate.TranslationServiceClient()
 
     target_language_codes = target_lang.split(",")
-    gcs_source = {"input_uri": input_uri}
+    gcs_source = {"input_uri": input_txt_uri}
     mime_type = "text/plain"
     input_configs_element = {"gcs_source": gcs_source, "mime_type": mime_type}
     input_configs = [input_configs_element]
     gcs_destination = {"output_uri_prefix": output_uri}
     output_config = {"gcs_destination": gcs_destination}
-    parent = client.location_path(project_id, location)
+    parent = f"projects/{project_id}/locations/{location}"
+    # parent = client.location_path(project_id, location)
 
+    translate.BatchTranslateTextRequest(
+
+    )
     operation = client.batch_translate_text(
-        parent=parent,
-        source_language_code=source_lang,
-        target_language_codes=target_language_codes,
-        input_configs=input_configs,
-        output_config=output_config)
+        request={
+            "parent":parent,
+            "source_language_code":source_lang,
+            "target_language_codes":target_language_codes,
+            "input_configs":input_configs,
+            "output_config":output_config
+            }
+        )
 
     print(u"Waiting for operation to complete...")
     response = operation.result(90)
@@ -82,7 +90,12 @@ def main():
         default="ko,fi",
     )
     parser.add_argument(
-        "--input_uri",
+        "--input_txt_uri",
+        type=str,
+        required=True,
+    )
+    parser.add_argument(
+        "--input_srt_uri",
         type=str,
         required=True,
     )
@@ -94,7 +107,7 @@ def main():
     args = parser.parse_args()
 
     get_supported_languages(args.project_id)
-    batch_translate_text(args.input_uri, args.output_uri, args.project_id,
+    batch_translate_text(args.input_txt_uri, args.output_uri, args.project_id,
                          location, args.source_lang, args.target_lang)
 
 

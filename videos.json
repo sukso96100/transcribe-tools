@@ -1,0 +1,9 @@
+{
+    "include": [
+        {
+            "input": "ubuntu2004.flac",
+            "from": "ko",
+            "to": "en"
+        }
+    ]
+}
