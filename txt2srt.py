@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import srt
+from google.cloud import storage
 
 
 def load_srt(filename):
@@ -25,8 +26,10 @@ def load_srt(filename):
     return list(srt.parse(text))
 
 
-def process_translations(subs, indexfile):
+def process_translations(subs, indexfile, out_bucket, out_path):
     # read index.csv and foreach translated file,
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(out_bucket)
 
     print("Updating subtitles for each translated language")
     with open(indexfile) as f:
@@ -37,7 +40,8 @@ def process_translations(subs, indexfile):
         lang = index_list[1]
         langfile = index_list[2].split("/")[-1]
         lang_subs = update_srt(lang, langfile, subs)
-        write_srt(lang, lang_subs)
+        content = write_srt(lang, lang_subs)
+        upload_to_bucket(content, bucket, out_path + lang + ".srt")
     return
 
 
@@ -55,12 +59,16 @@ def update_srt(lang, langfile, subs):
 
 def write_srt(lang, lang_subs):
     filename = lang + ".srt"
+    content = srt.compose(lang_subs, strict=True)
     f = open(filename, "w")
-    f.write(srt.compose(lang_subs, strict=True))
+    f.write(content)
     f.close()
     print("Wrote SRT file {}".format(filename))
-    return
+    return content
 
+def upload_to_bucket(content, bucket_obj, dest_filename):
+    blob = bucket_obj.blob(dest_filename)
+    blob.upload_from_string(content)
 
 def main():
     import argparse
@@ -76,10 +84,18 @@ def main():
         type=str,
         default="index.csv",
     )
+    parser.add_argument(
+        "--out_bucket",
+        type=str,
+    )
+    parser.add_argument(
+        "--out_path",
+        type=str,
+    )
     args = parser.parse_args()
 
     subs = load_srt(args.srt)
-    process_translations(subs, args.index)
+    process_translations(subs, args.index, args.out_bucket, args.out_path)
 
 
 if __name__ == "__main__":

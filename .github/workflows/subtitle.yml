@@ -58,5 +58,5 @@ jobs:
         gsutil cp -r gs://${{env.BUCKET_OUT}}/${{ matrix.input }}/out/ .
         gsutil cp gs://${{env.BUCKET_OUT}}/${{ matrix.input }}/${{ matrix.from }}.srt .
         mv out/* .
-        python txt2srt.py --srt ${{ matrix.from }}.srt --index index.csv
+        python txt2srt.py --srt ${{ matrix.from }}.srt --index index.csv --out_bucket ${{env.BUCKET_OUT}} --out_path ${{ matrix.input }}/out/
       

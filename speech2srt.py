@@ -150,7 +150,7 @@ def main():
         default="en",
     )
     parser.add_argument(
-        "--out_storage_uri",
+        "--out_storage",
         type=str,
         default="gs://cloud-samples-data/speech/brooklyn_bridge.raw",
     )
@@ -166,7 +166,7 @@ def main():
     out_txt = "{}/{}.{}".format(input_filename, args.language_code, "txt")
 
     storage_client = storage.Client()
-    bucket = storage_client.bucket(args.out_storage_uri)
+    bucket = storage_client.bucket(args.out_storage)
     if((not bucket.blob(out_srt).exists()) and (not bucket.blob(out_txt).exists())):
 
         subs = long_running_recognize(args)
